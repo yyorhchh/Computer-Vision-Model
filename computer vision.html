@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Comparison Dashboard | CV Health</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard">
+        <header>
+            <div class="header-content">
+                <h1>Computer Vision Model Evaluation</h1>
+                <p>Performance comparison of deep learning architectures for morphology analysis</p>
+            </div>
+        </header>
+
+        <main class="container">
+            <!-- Summary Stats Section -->
+            <section class="card animate-fade-in info-section">
+                <div class="section-title">
+                    <h2>Model Overview & Performance</h2>
+                    <span class="status-indicator">● Online and Ready</span>
+                </div>
+
+                <div class="model-selection">
+                    <p class="select-label">Select Active Model for Comparison:</p>
+                    <div class="model-toggle">
+                        <button class="toggle-btn active" id="btn-resnet" data-model="resnet">best_resnet50.pth</button>
+                        <button class="toggle-btn" id="btn-custom" data-model="custom">best_custom_cnn.pth</button>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-label">Accuracy</span>
+                        <span class="stat-value" id="acc-val">91%</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Macro Precision</span>
+                        <span class="stat-value" id="prec-val">0.90</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Macro Recall</span>
+                        <span class="stat-value" id="rec-val">0.90</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Macro F1-Score</span>
+                        <span class="stat-value" id="f1-val">0.90</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Detailed Analysis Section -->
+            <div class="analysis-grid">
+                <!-- Classification Report -->
+                <section class="card animate-fade-in report-card">
+                    <h3>Classification Report</h3>
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Precision</th>
+                                <th>Recall</th>
+                                <th>F1-Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-body">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Confusion Matrix -->
+                <section class="card animate-fade-in matrix-card">
+                    <h3>Confusion Matrix</h3>
+                    <div class="matrix-container">
+                        <div class="matrix-grid">
+                            <div class="matrix-cell label-top">Predicted: Neg</div>
+                            <div class="matrix-cell label-top">Predicted: Pos</div>
+                            <div class="matrix-cell label-left">Actual: Neg</div>
+                            <div class="matrix-cell val" id="mtx-tn">-</div>
+                            <div class="matrix-cell val" id="mtx-fp">-</div>
+                            <div class="matrix-cell label-left">Actual: Pos</div>
+                            <div class="matrix-cell val" id="mtx-fn">-</div>
+                            <div class="matrix-cell val" id="mtx-tp">-</div>
+                        </div>
+                    </div>
+                    <div class="matrix-legend">
+                        <p id="mtx-desc-tn">True Negatives: -</p>
+                        <p id="mtx-desc-fp">False Positives: -</p>
+                        <p id="mtx-desc-fn">False Negatives: -</p>
+                        <p id="mtx-desc-tp">True Positives: -</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ROC Curve Section -->
+            <section class="card animate-fade-in roc-section">
+                <div class="section-header">
+                    <h3>ROC Curve Analysis</h3>
+                    <span class="auc-badge" id="auc-score-display">AUC: 0.96</span>
+                </div>
+                <div class="roc-container">
+                    <img id="roc-image" src="Screenshot_2569-03-23_at_00.49.29.png" alt="ROC Curve plot">
+                </div>
+            </section>
+
+            <!-- Inference Section -->
+            <section class="card animate-fade-in inference-section">
+                <h2>Real-time Inference</h2>
+                <div class="prediction-grid">
+                    <div class="upload-area">
+                        <div class="upload-container" id="drop-zone">
+                            <div class="upload-icon">�</div>
+                            <p>Upload morphological scan</p>
+                            <input type="file" id="file-input" accept="image/*" multiple hidden>
+                        </div>
+                        <div id="preview-container" class="preview-box" style="display: none;">
+                            <div id="image-gallery"
+                                style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1rem; max-height: 250px; overflow-y: auto;">
+                            </div>
+                            <div class="preview-actions">
+                                <button id="predict-btn" class="primary-btn">Start Analysis</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="result-area">
+                        <div id="loading" class="loading-state" style="display: none;">
+                            <div class="spinner"></div>
+                            <p>Analyzing morphology patterns...</p>
+                        </div>
+                        <div id="result-container" class="result-display" style="display: none;">
+                            <div class="result-header">
+                                <h3>Analysis Result</h3>
+                                <span class="model-badge" id="active-model-name">best_custom_cnn.pth</span>
+                            </div>
+                            <div class="result-body" id="multi-result-list"
+                                style="max-height: 300px; overflow-y: auto; padding-right: 5px;">
+                                <!-- Dynamic results -->
+                            </div>
+                        </div>
+                        <div id="idle-state" class="idle-state">
+                            <div class="idle-icon">🔬</div>
+                            <p>Result will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="footer-links">
+                <a href="index.html" class="nav-link">← Back to Main Gate</a>
+                <span class="separator">|</span>
+                <p>&copy; 2024 CV Evaluation System</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const metricsData = {
+            resnet: {
+                acc: "95%",
+                prec: "0.95",
+                rec: "0.94",
+                f1: "0.95",
+                auc: "0.977",
+                roc: "Screenshot_2569-03-23_at_00.49.29.png",
+                matrix: { tn: 1283, fp: 46, fn: 70, tp: 833 },
+                report: [
+                    { name: "not_pneumonia", p: "0.95", r: "0.97", f: "0.96" },
+                    { name: "pneumonia", p: "0.95", r: "0.92", f: "0.93" }
+                ]
+            },
+            custom: {
+                acc: "91%",
+                prec: "0.90",
+                rec: "0.90",
+                f1: "0.90",
+                auc: "0.96",
+                roc: "Screenshot_2569-03-23_at_00.49.16.png",
+                matrix: { tn: 1227, fp: 102, fn: 110, tp: 793 },
+                report: [
+                    { name: "not_pneumonia", p: "0.92", r: "0.92", f: "0.92" },
+                    { name: "pneumonia", p: "0.89", r: "0.88", f: "0.88" }
+                ]
+            }
+        };
+
+        const fileInput = document.getElementById('file-input');
+        const dropZone = document.getElementById('drop-zone');
+        const previewContainer = document.getElementById('preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const predictBtn = document.getElementById('predict-btn');
+        const loading = document.getElementById('loading');
+        const resultContainer = document.getElementById('result-container');
+        const idleState = document.getElementById('idle-state');
+        const modelButtons = document.querySelectorAll('.toggle-btn');
+
+        let activeModel = 'resnet';
+
+        function updateUI(modelKey) {
+            const data = metricsData[modelKey];
+
+            // Basic Stats
+            document.getElementById('acc-val').textContent = data.acc;
+            document.getElementById('prec-val').textContent = data.prec;
+            document.getElementById('rec-val').textContent = data.rec;
+            document.getElementById('f1-val').textContent = data.f1;
+
+            // ROC and AUC
+            document.getElementById('auc-score-display').textContent = `AUC: ${data.auc}`;
+            document.getElementById('roc-image').src = data.roc;
+
+            // Report Table
+            const reportBody = document.getElementById('report-body');
+            reportBody.innerHTML = data.report.map(row => `
+                <tr>
+                    <td>${row.name}</td>
+                    <td>${row.p}</td>
+                    <td>${row.r}</td>
+                    <td>${row.f}</td>
+                </tr>
+            `).join('');
+
+            // Confusion Matrix
+            document.getElementById('mtx-tn').textContent = data.matrix.tn;
+            document.getElementById('mtx-fp').textContent = data.matrix.fp;
+            document.getElementById('mtx-fn').textContent = data.matrix.fn;
+            document.getElementById('mtx-tp').textContent = data.matrix.tp;
+
+            // Matrix Legend
+            document.getElementById('mtx-desc-tn').textContent = `True Negatives: ${data.matrix.tn}`;
+            document.getElementById('mtx-desc-fp').textContent = `False Positives: ${data.matrix.fp}`;
+            document.getElementById('mtx-desc-fn').textContent = `False Negatives: ${data.matrix.fn}`;
+            document.getElementById('mtx-desc-tp').textContent = `True Positives: ${data.matrix.tp}`;
+
+            // Reset Prediction Results
+            resultContainer.style.display = 'none';
+            idleState.style.display = 'flex';
+        }
+
+        // Initialize
+        updateUI('resnet');
+
+        modelButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modelButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeModel = btn.dataset.model;
+                updateUI(activeModel);
+            });
+        });
+
+        dropZone.onclick = () => fileInput.click();
+        fileInput.onchange = (e) => {
+            const files = e.target.files;
+            if (files.length > 0) {
+                const gallery = document.getElementById('image-gallery');
+                gallery.innerHTML = '';
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (re) => {
+                        const img = document.createElement('img');
+                        img.src = re.target.result;
+                        img.style.width = '80px';
+                        img.style.height = '80px';
+                        img.style.objectFit = 'cover';
+                        img.style.borderRadius = '4px';
+                        img.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                        gallery.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                });
+                dropZone.style.display = 'none';
+                previewContainer.style.display = 'block';
+            }
+        };
+
+        predictBtn.onclick = async (e) => {
+            e.preventDefault();
+            const files = fileInput.files;
+            if (files.length === 0) return;
+
+            loading.style.display = 'flex';
+            idleState.style.display = 'none';
+            resultContainer.style.display = 'none';
+
+            const resultList = document.getElementById('multi-result-list');
+            resultList.innerHTML = '';
+
+            try {
+                const fetchPromises = Array.from(files).map(async (file) => {
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    formData.append('model', activeModel);
+
+                    const response = await fetch('http://127.0.0.1:5000/predict', { method: 'POST', body: formData });
+                    if (!response.ok) {
+                        throw new Error("HTTP Error " + response.status);
+                    }
+                    const data = await response.json();
+                    return { file, data };
+                });
+
+                const results = await Promise.all(fetchPromises);
+                console.log(results);
+
+                // Sort results by Medical Urgency (Pneumonia first, by descending confidence)
+                results.sort((a, b) => {
+                    const aIsP = a.data.class === 'pneumonia';
+                    const bIsP = b.data.class === 'pneumonia';
+                    if (aIsP && !bIsP) return -1;
+                    if (!aIsP && bIsP) return 1;
+                    return b.data.confidence - a.data.confidence;
+                });
+
+                results.forEach(({ file, data }) => {
+                    const conf = (data.confidence * 100).toFixed(2);
+                    const isPneumonia = data.class === 'pneumonia';
+                    const statusColor = isPneumonia ? '#ef4444' : '#22c55e';
+
+                    let badgeHtml = '';
+                    if (isPneumonia) {
+                        if (data.confidence >= 0.8) {
+                            badgeHtml = '<span style="background: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px; font-weight: 600;">🚨 URGENT</span>';
+                        } else {
+                            badgeHtml = '<span style="background: #fef08a; color: #854d0e; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px; font-weight: 600;">⚠️ MONITOR</span>';
+                        }
+                    } else {
+                        badgeHtml = '<span style="background: #dcfce3; color: #166534; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px; font-weight: 600;">✅ NORMAL</span>';
+                    }
+
+                    const item = document.createElement('div');
+                    item.style.marginBottom = '1rem';
+                    item.style.padding = '1rem';
+                    item.style.background = '#ffffff';
+                    item.style.borderRadius = '8px';
+                    item.style.border = '1px solid #e2e8f0';
+                    item.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+                    item.innerHTML = `
+                        <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem; word-break: break-all;">File: ${file.name}</div>
+                        <div class="primary-result" style="margin: 0.5rem 0; display: flex; align-items: center;">
+                            <span class="result-value" style="font-size: 1.4rem; color: ${statusColor}; font-weight: 700; text-transform: uppercase;">${data.class}</span>
+                            ${badgeHtml}
+                        </div>
+                        <div class="confidence-metrics">
+                            <div class="conf-text" style="font-size: 0.85rem; display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span style="color: #64748b;">Confidence:</span> <span style="font-weight: 600; color: ${statusColor};">${conf}%</span>
+                            </div>
+                            <div class="conf-progress-bg" style="height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                                <div class="conf-progress-fill" style="width: ${conf}%; height: 100%; background: ${statusColor};"></div>
+                            </div>
+                        </div>
+                        <div class="gradcam-container" style="display: flex; gap: 10px; margin-top: 1rem; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 120px;">
+                                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 4px; font-weight: 600;">Original Scan</p>
+                                <img src="${data.before_img}" style="width: 100%; border-radius: 6px; border: 1px solid #e2e8f0; aspect-ratio: 1/1; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                            </div>
+                            <div style="flex: 1; min-width: 120px;">
+                                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 4px; font-weight: 600;">Grad-CAM Heatmap</p>
+                                <img src="${data.after_img}" style="width: 100%; border-radius: 6px; border: 1px solid #e2e8f0; aspect-ratio: 1/1; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                            </div>
+                        </div>
+                    `;
+                    resultList.appendChild(item);
+                });
+
+                const modelNameLabel = document.getElementById('active-model-name');
+                if (modelNameLabel) {
+                    modelNameLabel.textContent = activeModel === 'custom' ? 'best_custom_cnn.pth' : 'best_resnet50.pth';
+                }
+                resultContainer.style.display = 'block';
+            } catch (error) {
+                console.error(error);
+                alert("Cannot connect to API. Please make sure the Python server is running (python app.py).");
+                idleState.style.display = 'flex';
+            } finally {
+                loading.style.display = 'none';
+            }
+        };
+    </script>
+</body>
+
+</html>
